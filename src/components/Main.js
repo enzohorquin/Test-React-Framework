@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'react-datepicker/dist/react-datepicker.css';
 import {Input} from './Input.js';
 import {DateSelector} from './DateSelector.js';
+import {buildUrl} from '../functions.js'
 
 export class Main extends Component {
   constructor(){
@@ -27,17 +27,13 @@ export class Main extends Component {
 
     try{
       const link =  this.state.link.split('-', 2);
-      console.log(link);
       const primera_parte = link[0].split('/',4);
-      console.log(primera_parte);
       const id_producto = primera_parte[3]+link[1];
-      console.log(id_producto);
       this.getResultados(id_producto)
     }
     catch(err){
       console.log(err);
     }
-
 
   }
   handleChange = (event) =>{
@@ -61,41 +57,31 @@ export class Main extends Component {
   this.setState({endDate:event});
 }
 
-buildUrl = (url, parameters) =>{
-  var qs = "";
-  for(var key in parameters) {
-    var value = parameters[key];
-    qs += encodeURIComponent(key) + "=" + encodeURIComponent(value) + "&";
-  }
-  if (qs.length > 0){
-    qs = qs.substring(0, qs.length-1); //chop off last "&"
-    url = url + "?" + qs;
-  }
-  return url;
-}
-
-
    getResultados = (id) => {
+     const THOUSAND= 1000;
+     const SIXTY=60;
+     const TWENTYFOUR= 24;
      let url = `https://api.mercadolibre.com/items/`+`${id}`+`/visits/time_window`;
+     let dif = this.state.endDate.getTime() - this.state.startDate.getTime(); //Calculo la diferencia de dias
 
-     let diff = this.state.endDate.getTime() - this.state.startDate.getTime();
-
-     console.log(diff/(1000*60*60*24) );
      let parameters = {
-       last: diff/(1000*60*60*24),
+       last: dif/(THOUSAND*SIXTY*SIXTY*TWENTYFOUR),
        unit: "day",
        ending:new Date (this.state.endDate).toISOString().slice(0, 10).replace('T', ' ')
      };
+     //Junto con la url parcial y los parametros genero la url final para poder hacer el fetch a la API de ML
 
-  fetch(this.buildUrl(url, parameters)).then(response =>{
-    console.log(response);
-    response.json()
-  }).then(data => {this.setState({resultado:url})
-                  console.log(data)})
-  .catch(err =>{console.log(err)});
+  fetch(buildUrl(url, parameters), {
+    method: 'GET',
+    headers: {
+    Accept: 'application/json',
+  },
+    },).then(response =>{
+          return response.json()
+      }).then(data => {
+          this.setState({resultado:data.results})})
+        .catch(err =>{console.log(err)});
 
-
-  console.log(this.buildUrl(url,parameters));
   }
 
   render(){
