@@ -14,19 +14,16 @@ export const buildUrl = (url, parameters) =>{
 }
 
 //Obtain Dates from array
-export const getDates = (array) => {
-  let result = [];
-  for(let i=0; i < array.length; i++){
-    result.push(new Date(array[i].date).toISOString().slice(0, 10).replace('T', ' '))
-  }
+export const getDates = (array) =>{
+  let result = array.map(x => {
+    return new Date(x.date).toISOString().slice(0, 10).replace('T', ' ')
+  })
   return result;
 }
 
 //Obtain product visits from array
 export const getVisits = (array) => {
-  let result = [];
-  for(let i=0; i < array.length; i++){
-    result.push(array[i].total);
-  }
-  return result;
-}
+  let result = array.map(x =>{
+    return x.total});
+    return result;
+  };
