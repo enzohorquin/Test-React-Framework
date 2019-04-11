@@ -13,7 +13,7 @@ export const buildUrl = (url, parameters) =>{
   return url;
 }
 
-//Obtain Dates from array 
+//Obtain Dates from array
 export const getDates = (array) => {
   let result = [];
   for(let i=0; i < array.length; i++){
@@ -23,7 +23,7 @@ export const getDates = (array) => {
 }
 
 //Obtain product visits from array
-export const getVisitas = (array) => {
+export const getVisits = (array) => {
   let result = [];
   for(let i=0; i < array.length; i++){
     result.push(array[i].total);

@@ -4,7 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'react-datepicker/dist/react-datepicker.css';
 import {Input} from './Input.js';
 import {DateSelector} from './DateSelector.js';
-import {buildUrl,getDates,getVisitas} from '../functions.js'
+import {buildUrl,getDates,getVisits} from '../functions.js'
 import {Line} from 'react-chartjs-2';
 
 export class Main extends Component {
@@ -21,6 +21,8 @@ export class Main extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeStart = this.handleChangeStart.bind(this);
     this.handleChangeEnd = this.handleChangeEnd.bind(this);
+    this.generateData = this.generateData.bind(this);
+    this.noErrors = this.noErrors.bind(this);
 
   }
   handleSubmit = (event) =>{
@@ -86,23 +88,41 @@ export class Main extends Component {
           return response.json()
       }).then(data => {
           this.setState({resultado:data.results})})
-        .catch(err =>{console.log(err)});
+        .catch(err =>{
+          console.log(err);
+
+        });
+  }
+
+  //Generating Data for Chart
+  // If statement to handle wrong link input.
+  generateData = ( ) => {
+    let data;
+    let label =[];
+    let visits = [];
+    if(this.state.resultado !== undefined ){
+      label = getDates(this.state.resultado);
+      visits = getVisits(this.state.resultado);
+  }
+  data = {
+    labels: label,
+    datasets: [
+      {
+        label: 'ML visits per day',
+        data: visits,
+        fill: false,
+        borderColor: 'green'
+      }
+    ]
+  }
+  return data;
+
   }
   render(){
 
     //Generating Data for Chart
-    console.log(this.state.resultado)
-    const data = {
-      labels: getDates(this.state.resultado),
-      datasets: [
-        {
-          label: 'ML visits per day',
-          data: getVisitas(this.state.resultado),
-          fill: false,
-          borderColor: 'green'
-        }
-      ]
-    }
+    // If statement to handle wrong link input.
+    let data = this.generateData;
 
 
     return(
@@ -123,7 +143,7 @@ export class Main extends Component {
                    />
                    </div>
                      <div className="form-group mx-sm-3 mb-2">
-                        <input  className="btn btn-primary" type="submit" disabled = {!this.noErrors()}value="Buscar Producto"/>
+                        <input  className="btn btn-primary" type="submit" disabled = {!this.noErrors}value="Buscar Producto"/>
                      </div>
                      <div className= "form-group mx-sm-3 mb-2">
                       <Line data={data}/>
