@@ -8,7 +8,6 @@ export class DateSelector extends React.Component{
         this.handleChangeEnd = this.handleChangeEnd.bind(this);
       }
 
-
       handleChangeStart = event =>{
         console.log(event);
         this.props.onChangeStart(event);
@@ -17,6 +16,10 @@ export class DateSelector extends React.Component{
         this.props.onChangeEnd(event);
       }
       render(){
+
+          let yesterday = new Date(this.props.endDate);
+          yesterday.setDate(this.props.endDate.getDate()-1);
+
         return(
 
           <div>
@@ -25,7 +28,7 @@ export class DateSelector extends React.Component{
             <DatePicker
               selected={this.props.startDate}
               dateFormat="dd/MM/yyyy"
-              maxDate={this.props.maxDate}
+              maxDate={yesterday}
               selectsStart
               startDate={this.props.startDate}
               onChange = { this.handleChangeStart }
@@ -35,7 +38,7 @@ export class DateSelector extends React.Component{
             <DatePicker
               selected={this.props.endDate}
               dateFormat="dd/MM/yyyy"
-              maxDate={this.props.maxDate}
+              maxDate={new Date()}
               selectsEnd
               endDate={this.props.endDate}
               onChange={this.handleChangeEnd}

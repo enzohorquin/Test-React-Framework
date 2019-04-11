@@ -18,7 +18,6 @@ export const Input = (props) => (
 Input.propTypes = {
   type: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number,
   ]),
   id:PropTypes.string,
   name: PropTypes.string,

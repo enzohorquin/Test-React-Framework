@@ -51,12 +51,12 @@ export class Main extends Component {
 
     return this.state.link !== '';
 }
-  handleChangeStart = (event,{value}) => {
+  handleChangeStart = (event) => {
 
 
   this.setState({startDate:event});
   }
-  handleChangeEnd = (event,{value}) => {
+  handleChangeEnd = (event) => {
 
   this.setState({endDate:event});
 }
@@ -69,12 +69,12 @@ export class Main extends Component {
      let url = `https://api.mercadolibre.com/items/`+`${id}`+`/visits/time_window`;
      let dif = this.state.endDate.getTime() - this.state.startDate.getTime(); //The difference between the days is calculated.
      let parameters = {
-       last: dif/(THOUSAND*SIXTY*SIXTY*TWENTYFOUR),
+       last: Math.floor(dif/(THOUSAND*SIXTY*SIXTY*TWENTYFOUR)),
        unit: "day",
        ending:new Date (this.state.endDate).toISOString().slice(0, 10).replace('T', ' ')
      };
      //
-
+     console.log(parameters.last)
      //Calling ML API
   fetch(buildUrl(url, parameters), {
     method: 'GET',
@@ -82,6 +82,7 @@ export class Main extends Component {
     Accept: 'application/json',
   },
     },).then(response =>{
+
           return response.json()
       }).then(data => {
           this.setState({resultado:data.results})})
@@ -89,7 +90,8 @@ export class Main extends Component {
   }
   render(){
 
-    //Generating Data for Chart 
+    //Generating Data for Chart
+    console.log(this.state.resultado)
     const data = {
       labels: getDates(this.state.resultado),
       datasets: [
