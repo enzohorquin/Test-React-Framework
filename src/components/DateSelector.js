@@ -42,7 +42,6 @@ export class DateSelector extends React.Component{
               timeFormat=""
           />
           </div>
-
           </div>
 
 

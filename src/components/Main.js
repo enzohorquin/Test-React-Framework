@@ -4,12 +4,13 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'react-datepicker/dist/react-datepicker.css';
 import {Input} from './Input.js';
 import {DateSelector} from './DateSelector.js';
-import {buildUrl} from '../functions.js'
+import {buildUrl,getDates,getVisitas} from '../functions.js'
+import {Line} from 'react-chartjs-2';
 
 export class Main extends Component {
   constructor(){
     super();
-    var last_month = new Date();
+    let last_month = new Date();
     last_month.setMonth(last_month.getMonth()-1);
     this.state = {link:'',
                   startDate:last_month,
@@ -24,11 +25,16 @@ export class Main extends Component {
   }
   handleSubmit = (event) =>{
     event.preventDefault();
+    const CERO = 0;
+    const UNO = 1;
+    const DOS = 2;
+    const TRES = 3;
+    const CUATRO = 4;
 
     try{
-      const link =  this.state.link.split('-', 2);
-      const primera_parte = link[0].split('/',4);
-      const id_producto = primera_parte[3]+link[1];
+      const link =  this.state.link.split('-', DOS);
+      const primera_parte = link[CERO].split('/',CUATRO);
+      const id_producto = primera_parte[TRES]+link[UNO];
       this.getResultados(id_producto)
     }
     catch(err){
@@ -46,9 +52,7 @@ export class Main extends Component {
     return this.state.link !== '';
 }
   handleChangeStart = (event,{value}) => {
-    console.log("ENTRO");
-    console.log("VALOR"+value);
-    console.log("evento"+event);
+
 
   this.setState({startDate:event});
   }
@@ -58,19 +62,20 @@ export class Main extends Component {
 }
 
    getResultados = (id) => {
+
      const THOUSAND= 1000;
      const SIXTY=60;
      const TWENTYFOUR= 24;
      let url = `https://api.mercadolibre.com/items/`+`${id}`+`/visits/time_window`;
-     let dif = this.state.endDate.getTime() - this.state.startDate.getTime(); //Calculo la diferencia de dias
-
+     let dif = this.state.endDate.getTime() - this.state.startDate.getTime(); //The difference between the days is calculated.
      let parameters = {
        last: dif/(THOUSAND*SIXTY*SIXTY*TWENTYFOUR),
        unit: "day",
        ending:new Date (this.state.endDate).toISOString().slice(0, 10).replace('T', ' ')
      };
-     //Junto con la url parcial y los parametros genero la url final para poder hacer el fetch a la API de ML
+     //
 
+     //Calling ML API
   fetch(buildUrl(url, parameters), {
     method: 'GET',
     headers: {
@@ -81,11 +86,24 @@ export class Main extends Component {
       }).then(data => {
           this.setState({resultado:data.results})})
         .catch(err =>{console.log(err)});
-
   }
-
   render(){
-    return( <div >
+
+    //Generating Data for Chart 
+    const data = {
+      labels: getDates(this.state.resultado),
+      datasets: [
+        {
+          label: 'ML visits per day',
+          data: getVisitas(this.state.resultado),
+          fill: false,
+          borderColor: 'green'
+        }
+      ]
+    }
+
+
+    return(
                   <form className="form-horizontal" onSubmit={this.handleSubmit} onChange={this.handleChange}>
 
                   <div className="form-group mx-sm-3 mb-2">
@@ -105,9 +123,12 @@ export class Main extends Component {
                      <div className="form-group mx-sm-3 mb-2">
                         <input  className="btn btn-primary" type="submit" disabled = {!this.noErrors()}value="Buscar Producto"/>
                      </div>
+                     <div className= "form-group mx-sm-3 mb-2">
+                      <Line data={data}/>
+                    </div>
 
                     </form>
-              </div>)
+              )
   }
 }
 export default Main;
